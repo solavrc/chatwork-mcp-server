@@ -1,0 +1,40 @@
+{
+  "name": "@chatwork/chatwork-mcp-server",
+  "version": "0.1.0",
+  "bin": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chatwork/chatwork-mcp-server.git"
+  },
+  "keywords": [
+    "kubell",
+    "Chatwork",
+    "MCP",
+    "AI"
+  ],
+  "author": "kubell Co., LTD",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chatwork/chatwork-mcp-server/issues"
+  },
+  "homepage": "https://github.com/chatwork/chatwork-mcp-server#readme",
+  "description": "MCP (Model Context Protocol) server for operating Chatwork from AI",
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@tsconfig/strictest": "^2.0.5",
+    "esbuild": "^0.25.1",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1"
+  }
+}
