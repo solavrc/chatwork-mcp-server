@@ -1,5 +1,4 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { ChatworkClient, ChatworkClientResponse } from './chatworkClient';
 import {
   listMyTasksParamsSchema,
   createRoomParamsSchema,
@@ -28,395 +27,216 @@ import {
   acceptIncomingRequestParamsSchema,
   rejectIncomingRequestParamsSchema,
 } from './schema';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-
-const chatworkApiToken = process.env['CHATWORK_API_TOKEN'];
-if (chatworkApiToken === undefined) {
-  throw new Error('CHATWORK_API_TOKEN is not set');
-}
-
-const chatworkClient = new ChatworkClient(chatworkApiToken);
+import {
+  getMe,
+  getMyStatus,
+  listMyTasks,
+  listContacts,
+  listRooms,
+  createRoom,
+  getRoom,
+  updateRoom,
+  deleteOrLeaveRoom,
+  listRoomMembers,
+  updateRoomMembers,
+  listRoomMessages,
+  postRoomMessage,
+  readRoomMessage,
+  unreadRoomMessage,
+  getRoomMessage,
+  listRoomTasks,
+  updateRoomMessage,
+  deleteRoomMessage,
+  createRoomTask,
+  getRoomTask,
+  updateRoomTaskStatus,
+  listRoomFiles,
+  getRoomLink,
+  createRoomLink,
+  deleteRoomLink,
+  updateRoomLink,
+  acceptIncomingRequest,
+  rejectIncomingRequest,
+  getRoomFile,
+} from './toolCallbacks';
 
 const server = new McpServer({
   name: 'Chatwork',
   version: '0.0.1',
 });
 
-function chatworkClientResponseToCallToolResult(
-  res: ChatworkClientResponse,
-): CallToolResult {
-  if (!res.ok) {
-    return {
-      isError: true,
-      content: [
-        {
-          type: 'text',
-          text: `Error: status code ${res.status}`,
-        },
-        {
-          type: 'resource',
-          resource: {
-            uri: res.uri,
-            text: res.response,
-          },
-        },
-      ],
-    };
-  }
-
-  return {
-    content: [
-      {
-        type: 'resource',
-        resource: {
-          uri: res.uri,
-          text: res.response,
-        },
-      },
-    ],
-  };
-}
-
-server.tool('get_me', () =>
-  chatworkClient
-    .request({
-      path: '/me',
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool('get_me', '自分自身の情報を取得します。', getMe);
+server.tool(
+  'get_my_status',
+  '自分の未読数、自分宛ての未読の数、未完了タスク数を取得します。',
+  getMyStatus,
 );
-
-server.tool('get_my_status', () =>
-  chatworkClient
-    .request({
-      path: '/my/status',
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_my_tasks',
+  '自分のタスク一覧を最大100件まで取得します。',
+  listMyTasksParamsSchema.shape,
+  listMyTasks,
 );
-
-server.tool('list_my_tasks', listMyTasksParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: '/my/tasks',
-      method: 'GET',
-      query: req.query,
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_contacts',
+  '自分のコンタクト一覧を取得します。',
+  listContacts,
 );
-
-server.tool('list_contacts', () =>
-  chatworkClient
-    .request({
-      path: '/contacts',
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool('list_rooms', 'チャット一覧を取得します。', listRooms);
+server.tool(
+  'create_room',
+  '新しいグループチャットを作成します。',
+  createRoomParamsSchema.shape,
+  createRoom,
 );
-
-server.tool('list_rooms', () =>
-  chatworkClient
-    .request({
-      path: '/rooms',
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'get_room',
+  'チャットの情報（名前、アイコン、種類など）を取得します。',
+  getRoomParamsSchema.shape,
+  getRoom,
 );
-
-server.tool('create_room', createRoomParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: '/rooms',
-      method: 'POST',
-      body: req.body,
-      query: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'update_room',
+  'チャットの情報（名前、アイコンなど）を変更します。',
+  updateRoomParamsSchema.shape,
+  updateRoom,
 );
-
-server.tool('get_room', getRoomParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
-);
-
-server.tool('update_room', updateRoomParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
-);
-
 server.tool(
   'delete_or_leave_room',
+  'グループチャットを退席、または削除します。グループチャットを退席すると、このグループチャットにある自分が担当者のタスク、および自分が送信したファイルがすべて削除されます。グループチャットを削除すると、このグループチャットにあるメッセージ、タスク、ファイルがすべて削除されます。（一度削除すると元に戻せません。）',
   deleteOrLeaveRoomParamsSchema.shape,
-  (req) =>
-    chatworkClient
-      .request({
-        path: `/rooms/${req.path.room_id}`,
-        method: 'DELETE',
-        query: {},
-        body: req.body,
-      })
-      .then(chatworkClientResponseToCallToolResult),
+  deleteOrLeaveRoom,
 );
-
-server.tool('list_room_members', listRoomMembersParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/members`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_room_members',
+  'チャットのメンバー一覧を取得します。',
+  listRoomMembersParamsSchema.shape,
+  listRoomMembers,
 );
-
-server.tool('update_room_members', updateRoomMembersParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/members`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'update_room_members',
+  'チャットのメンバーを一括で変更します。',
+  updateRoomMembersParamsSchema.shape,
+  updateRoomMembers,
 );
-
-server.tool('list_room_messages', listRoomMessagesParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages`,
-      method: 'GET',
-      query: req.query,
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_room_messages',
+  'チャットのメッセージ一覧を最大100件まで取得します。',
+  listRoomMessagesParamsSchema.shape,
+  listRoomMessages,
 );
-
-server.tool('post_room_message', postRoomMessageParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages`,
-      method: 'POST',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'post_room_message',
+  'チャットに新しいメッセージを投稿します。',
+  postRoomMessageParamsSchema.shape,
+  postRoomMessage,
 );
-
-server.tool('read_room_messages', readRoomMessagesParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages/read`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'read_room_messages',
+  'チャットのメッセージを既読にします。',
+  readRoomMessagesParamsSchema.shape,
+  readRoomMessage,
 );
-
-server.tool('unread_room_message', unreadRoomMessageParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages/unread`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'unread_room_message',
+  'チャットのメッセージを未読にします。',
+  unreadRoomMessageParamsSchema.shape,
+  unreadRoomMessage,
 );
-
-server.tool('get_room_message', getRoomMessageParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages/${req.path.message_id}`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'get_room_message',
+  'チャットのメッセージを取得します。',
+  getRoomMessageParamsSchema.shape,
+  getRoomMessage,
 );
-
-server.tool('update_room_message', updateRoomMessageParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages/${req.path.message_id}`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'update_room_message',
+  'チャットのメッセージを更新します。',
+  updateRoomMessageParamsSchema.shape,
+  updateRoomMessage,
 );
-
-server.tool('delete_room_message', deleteRoomMessageParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/messages/${req.path.message_id}`,
-      method: 'DELETE',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'delete_room_message',
+  'チャットのメッセージを削除します。',
+  deleteRoomMessageParamsSchema.shape,
+  deleteRoomMessage,
 );
-
-server.tool('list_room_tasks', listRoomTasksParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/tasks`,
-      method: 'GET',
-      query: req.query,
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_room_tasks',
+  'チャットのタスク一覧を最大100件まで取得します。',
+  listRoomTasksParamsSchema.shape,
+  listRoomTasks,
 );
-
-server.tool('create_room_task', createRoomTaskParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/tasks`,
-      method: 'POST',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'create_room_task',
+  'チャットに新しいタスクを追加します。',
+  createRoomTaskParamsSchema.shape,
+  createRoomTask,
 );
-
-server.tool('get_room_task', getRoomTaskParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/tasks/${req.path.task_id}`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'get_room_task',
+  'チャットのタスクの情報を取得します。',
+  getRoomTaskParamsSchema.shape,
+  getRoomTask,
 );
-
 server.tool(
   'update_room_task_status',
+  'チャットのタスクの完了状態を変更します。',
   updateRoomTasksStatusParamsSchema.shape,
-  (req) =>
-    chatworkClient
-      .request({
-        path: `/rooms/${req.path.room_id}/tasks/${req.path.task_id}/status`,
-        method: 'PUT',
-        query: {},
-        body: req.body,
-      })
-      .then(chatworkClientResponseToCallToolResult),
+  updateRoomTaskStatus,
 );
-
-server.tool('list_room_files', listRoomFilesParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/files`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'list_room_files',
+  'チャットのファイル一覧を最大100件まで取得します。',
+  listRoomFilesParamsSchema.shape,
+  listRoomFiles,
 );
-
-server.tool('get_room_file', getRoomFileParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/files/${req.path.file_id}`,
-      method: 'GET',
-      query: req.query,
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'get_room_file',
+  'チャットのファイルの情報を取得します。',
+  getRoomFileParamsSchema.shape,
+  getRoomFile,
 );
-
-server.tool('get_room_link', getRoomLinkParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/link`,
-      method: 'GET',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'get_room_link',
+  'チャットへの招待リンクを取得します。',
+  getRoomLinkParamsSchema.shape,
+  getRoomLink,
 );
-
-server.tool('create_room_link', createRoomLinkParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/link`,
-      method: 'POST',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'create_room_link',
+  'チャットへの招待リンクを作成します。すでに招待リンクが作成されている場合は400エラーを返します。',
+  createRoomLinkParamsSchema.shape,
+  createRoomLink,
 );
-
-server.tool('update_room_link', updateRoomLinkParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/link`,
-      method: 'PUT',
-      query: {},
-      body: req.body,
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'update_room_link',
+  'チャットへの招待リンクを変更します。招待リンクが無効になっている場合は400エラーを返します。',
+  updateRoomLinkParamsSchema.shape,
+  updateRoomLink,
 );
-
-server.tool('delete_room_link', deleteRoomLinkParamsSchema.shape, (req) =>
-  chatworkClient
-    .request({
-      path: `/rooms/${req.path.room_id}/link`,
-      method: 'DELETE',
-      query: {},
-      body: {},
-    })
-    .then(chatworkClientResponseToCallToolResult),
+server.tool(
+  'delete_room_link',
+  'チャットへの招待リンクを削除します。招待リンクが無効になっている場合は400エラーを返します。',
+  deleteRoomLinkParamsSchema.shape,
+  deleteRoomLink,
 );
-
+server.tool(
+  'list_incoming_requests',
+  '自分へのコンタクト承認依頼一覧を最大100件まで取得します。',
+  listContacts,
+);
 server.tool(
   'accept_incoming_request',
+  '自分へのコンタクト承認依頼を承認します。',
   acceptIncomingRequestParamsSchema.shape,
-  (req) =>
-    chatworkClient
-      .request({
-        path: `/incoming_requests/${req.path.request_id}/accept`,
-        method: 'PUT',
-        query: {},
-        body: {},
-      })
-      .then(chatworkClientResponseToCallToolResult),
+  acceptIncomingRequest,
 );
-
 server.tool(
   'reject_incoming_request',
+  '自分へのコンタクト承認依頼を拒否します。',
   rejectIncomingRequestParamsSchema.shape,
-  (req) =>
-    chatworkClient
-      .request({
-        path: `/incoming_requests/${req.path.request_id}/reject`,
-        method: 'DELETE',
-        query: {},
-        body: {},
-      })
-      .then(chatworkClientResponseToCallToolResult),
+  rejectIncomingRequest,
 );
 
 export { server };

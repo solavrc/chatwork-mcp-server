@@ -57,3 +57,11 @@ export class ChatworkClient {
     };
   }
 }
+
+export function chatworkClient() {
+  const chatworkApiToken = process.env['CHATWORK_API_TOKEN'];
+  if (!chatworkApiToken) {
+    throw new Error('CHATWORK_API_TOKEN is not set');
+  }
+  return new ChatworkClient(chatworkApiToken);
+}
