@@ -105,6 +105,31 @@ export const listContacts = () =>
     })
     .then(chatworkClientResponseToCallToolResult);
 
+// TODO: 2500文字という閾値は直感によるもの。適切な値を調査する必要がある。
+/** レスポンス文字列が2500文字を超える場合プロパティを絞って返す */
+const minifyListRoomsResponse = (
+  res: ChatworkClientResponse,
+): ChatworkClientResponse => {
+  if (!res.ok || res.response.length < 2500) {
+    return res;
+  }
+
+  const fullResponse: {
+    room_id: number;
+    name: string;
+    type: string;
+  }[] = JSON.parse(res.response);
+  const minifiedResponse = fullResponse.map(({ room_id, name, type }) => ({
+    room_id,
+    name,
+    type,
+  }));
+  return {
+    ...res,
+    response: JSON.stringify(minifiedResponse),
+  };
+};
+
 export const listRooms = () =>
   chatworkClient()
     .request({
@@ -113,6 +138,7 @@ export const listRooms = () =>
       query: {},
       body: {},
     })
+    .then(minifyListRoomsResponse)
     .then(chatworkClientResponseToCallToolResult);
 
 export const createRoom = (req: z.infer<typeof createRoomParamsSchema>) =>
