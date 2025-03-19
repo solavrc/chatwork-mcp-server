@@ -58,6 +58,7 @@ import {
   acceptIncomingRequest,
   rejectIncomingRequest,
   getRoomFile,
+  listIncomingRequests,
 } from './toolCallbacks';
 
 const server = new McpServer({
@@ -224,7 +225,7 @@ server.tool(
 server.tool(
   'list_incoming_requests',
   '自分へのコンタクト承認依頼一覧を最大100件まで取得します。',
-  listContacts,
+  listIncomingRequests,
 );
 server.tool(
   'accept_incoming_request',
