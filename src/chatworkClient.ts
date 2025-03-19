@@ -47,7 +47,15 @@ export class ChatworkClient {
     }
 
     const response = await fetch(url.toString(), fetchInit);
-    const responseText = await response.text();
+    const rawResponseText = await response.text();
+
+    // Unicodeエスケープを解除する
+    let responseText: string;
+    try {
+      responseText = JSON.stringify(JSON.parse(rawResponseText));
+    } catch {
+      responseText = rawResponseText;
+    }
 
     return {
       uri: url.toString(),
