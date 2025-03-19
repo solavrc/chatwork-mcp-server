@@ -63,6 +63,7 @@ import {
 
 const server = new McpServer({
   name: 'Chatwork',
+  // FIXME: ハードコーディングではなくpackage.jsonのバージョンに合わせるようにする
   version: '0.0.1',
 });
 
