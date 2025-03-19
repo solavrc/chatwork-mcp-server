@@ -18,16 +18,13 @@ Claude Desktop を例に説明します。
   "mcpServers": {
     "chatwork": {
       "command": "npx",
-      "args": [
-        "@chatwork/mcp-server"
-      ],
+      "args": ["@chatwork/mcp-server"],
       "env": {
         "CHATWORK_API_TOKEN": "YOUR_CHATWORK_API_TOKEN"
       }
     }
   }
 }
-
 ```
 
 今後、MCP に対応した AI ツールが増える可能性があります。使い方を追加してほしいツールがあった場合、あなたのコントリビュートをお待ちしています！
