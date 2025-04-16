@@ -64,7 +64,7 @@ function chatworkClientResponseToCallToolResult(
           uri: res.uri,
           text: 'Chatwork',
         },
-      }
+      },
     ],
   };
 }
