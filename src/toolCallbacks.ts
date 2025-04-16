@@ -59,6 +59,13 @@ function chatworkClientResponseToCallToolResult(
         type: 'text',
         text: formattedText,
       },
+      {
+        type: 'resource',
+        resource: {
+          uri: res.uri,
+          text: res.response,
+        },
+      },
     ],
   };
 }
