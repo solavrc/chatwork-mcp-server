@@ -146,7 +146,17 @@ export const createRoom = (req: z.infer<typeof createRoomParamsSchema>) =>
     .request({
       path: '/rooms',
       method: 'POST',
-      body: req.body,
+      body: {
+        name: req.name,
+        description: req.description,
+        link: req.link ? 1 : 0,
+        link_code: req.link_code,
+        link_need_acceptance: req.link_need_acceptance ? 1 : 0,
+        members_admin_ids: req.members_admin_ids,
+        members_member_ids: req.members_member_ids,
+        members_readonly_ids: req.members_readonly_ids,
+        icon_preset: req.icon_preset,
+      },
       query: {},
     })
     .then(chatworkClientResponseToCallToolResult);
@@ -212,9 +222,11 @@ export const listRoomMessages = (
 ) =>
   chatworkClient()
     .request({
-      path: `/rooms/${req.path.room_id}/messages`,
+      path: `/rooms/${req.room_id}/messages`,
       method: 'GET',
-      query: req.query,
+      query: {
+        force: req.force ? 1 : 0,
+      },
       body: {},
     })
     .then(chatworkClientResponseToCallToolResult);
@@ -224,10 +236,13 @@ export const postRoomMessage = (
 ) =>
   chatworkClient()
     .request({
-      path: `/rooms/${req.path.room_id}/messages`,
+      path: `/rooms/${req.room_id}/messages`,
       method: 'POST',
       query: {},
-      body: req.body,
+      body: {
+        body: req.body,
+        self_unread: req.self_unread ? 1 : 0,
+      },
     })
     .then(chatworkClientResponseToCallToolResult);
 
@@ -348,9 +363,11 @@ export const listRoomFiles = (req: z.infer<typeof listRoomFilesParamsSchema>) =>
 export const getRoomFile = (req: z.infer<typeof getRoomFileParamsSchema>) =>
   chatworkClient()
     .request({
-      path: `/rooms/${req.path.room_id}/files/${req.path.file_id}`,
+      path: `/rooms/${req.room_id}/files/${req.file_id}`,
       method: 'GET',
-      query: req.query,
+      query: {
+        create_download_url: req.create_download_url ? 1 : 0,
+      },
       body: {},
     })
     .then(chatworkClientResponseToCallToolResult);
@@ -370,10 +387,14 @@ export const createRoomLink = (
 ) =>
   chatworkClient()
     .request({
-      path: `/rooms/${req.path.room_id}/link`,
+      path: `/rooms/${req.room_id}/link`,
       method: 'POST',
       query: {},
-      body: req.body,
+      body: {
+        code: req.code,
+        need_acceptance: req.need_acceptance ? 1 : 0,
+        description: req.description,
+      },
     })
     .then(chatworkClientResponseToCallToolResult);
 
@@ -382,10 +403,14 @@ export const updateRoomLink = (
 ) =>
   chatworkClient()
     .request({
-      path: `/rooms/${req.path.room_id}/link`,
+      path: `/rooms/${req.room_id}/link`,
       method: 'PUT',
       query: {},
-      body: req.body,
+      body: {
+        code: req.code,
+        need_acceptance: req.need_acceptance ? 1 : 0,
+        description: req.description,
+      },
     })
     .then(chatworkClientResponseToCallToolResult);
 

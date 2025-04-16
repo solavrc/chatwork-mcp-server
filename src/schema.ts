@@ -8,17 +8,15 @@ export const listMyTasksParamsSchema = z.object({
 });
 
 export const createRoomParamsSchema = z.object({
-  body: z.object({
-    name: z.string(),
-    description: z.string().optional(),
-    link: z.union([z.literal(0), z.literal(1)]).optional(),
-    link_code: z.string().optional(),
-    link_need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
-    members_admin_ids: z.string(),
-    members_member_ids: z.string().optional(),
-    members_readonly_ids: z.string().optional(),
-    icon_preset: z.string().optional(),
-  }),
+  name: z.string().describe('チャットルームの名前'),
+  description: z.string().optional().describe('チャットルームの説明'),
+  link: z.boolean().optional().describe('招待リンクを作成するかどうか'),
+  link_code: z.string().optional().describe('招待リンクのコード'),
+  link_need_acceptance: z.boolean().optional().describe('招待リンクの承認が必要かどうか'),
+  members_admin_ids: z.string().describe('管理者メンバーのIDリスト（カンマ区切り）'),
+  members_member_ids: z.string().optional().describe('一般メンバーのIDリスト（カンマ区切り）'),
+  members_readonly_ids: z.string().optional().describe('閲覧専用メンバーのIDリスト（カンマ区切り）'),
+  icon_preset: z.string().optional().describe('アイコンプリセット'),
 });
 
 export const getRoomParamsSchema = z.object({
@@ -65,22 +63,14 @@ export const updateRoomMembersParamsSchema = z.object({
 });
 
 export const listRoomMessagesParamsSchema = z.object({
-  path: z.object({
-    room_id: z.number(),
-  }),
-  query: z.object({
-    force: z.union([z.literal(0), z.literal(1)]).optional(),
-  }),
+  room_id: z.number().describe('チャットルームのID'),
+  force: z.boolean().optional().describe('強制的に取得するかどうか'),
 });
 
 export const postRoomMessageParamsSchema = z.object({
-  path: z.object({
-    room_id: z.number(),
-  }),
-  body: z.object({
-    body: z.string(),
-    self_unread: z.union([z.literal(0), z.literal(1)]).optional(),
-  }),
+  room_id: z.number().describe('チャットルームのID'),
+  body: z.string().describe('メッセージの本文'),
+  self_unread: z.boolean().optional().describe('自分が未読としてマークするかどうか'),
 });
 
 export const readRoomMessagesParamsSchema = z.object({
@@ -177,13 +167,9 @@ export const listRoomFilesParamsSchema = z.object({
 });
 
 export const getRoomFileParamsSchema = z.object({
-  path: z.object({
-    room_id: z.number(),
-    file_id: z.number(),
-  }),
-  query: z.object({
-    create_download_url: z.union([z.literal(0), z.literal(1)]).optional(),
-  }),
+  room_id: z.number().describe('チャットルームのID'),
+  file_id: z.number().describe('ファイルのID'),
+  create_download_url: z.boolean().optional().describe('ダウンロードURLを作成するかどうか'),
 });
 
 export const getRoomLinkParamsSchema = z.object({
@@ -193,25 +179,17 @@ export const getRoomLinkParamsSchema = z.object({
 });
 
 export const createRoomLinkParamsSchema = z.object({
-  path: z.object({
-    room_id: z.number(),
-  }),
-  body: z.object({
-    code: z.string().optional(),
-    need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
-    description: z.string().optional(),
-  }),
+  room_id: z.number().describe('チャットルームのID'),
+  code: z.string().optional().describe('招待リンクのコード'),
+  need_acceptance: z.boolean().optional().describe('招待リンクの承認が必要かどうか'),
+  description: z.string().optional().describe('招待リンクの説明'),
 });
 
 export const updateRoomLinkParamsSchema = z.object({
-  path: z.object({
-    room_id: z.number(),
-  }),
-  body: z.object({
-    code: z.string().optional(),
-    need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
-    description: z.string().optional(),
-  }),
+  room_id: z.number().describe('チャットルームのID'),
+  code: z.string().optional().describe('招待リンクのコード'),
+  need_acceptance: z.boolean().optional().describe('招待リンクの承認が必要かどうか'),
+  description: z.string().optional().describe('招待リンクの説明'),
 });
 
 export const deleteRoomLinkParamsSchema = z.object({
