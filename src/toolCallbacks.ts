@@ -39,7 +39,7 @@ function chatworkClientResponseToCallToolResult(
       content: [
         {
           type: 'text',
-          text: `Error: status code ${res.status}`,
+          text: `Error: ChatWork API returned status code ${res.status} for ${res.uri}`,
         },
         {
           type: 'resource',
@@ -54,6 +54,10 @@ function chatworkClientResponseToCallToolResult(
 
   return {
     content: [
+      {
+        type: 'text',
+        text: res.response,
+      },
       {
         type: 'resource',
         resource: {
