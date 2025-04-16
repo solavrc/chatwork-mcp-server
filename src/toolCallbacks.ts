@@ -39,27 +39,25 @@ function chatworkClientResponseToCallToolResult(
       content: [
         {
           type: 'text',
-          text: `Error: status code ${res.status}`,
-        },
-        {
-          type: 'resource',
-          resource: {
-            uri: res.uri,
-            text: res.response,
-          },
+          text: `Error: status code ${res.status}\nURI: ${res.uri}\nResponse: ${res.response}`,
         },
       ],
     };
   }
 
+  let formattedText = '';
+  try {
+    const jsonData = JSON.parse(res.response);
+    formattedText = `URI: ${res.uri}\nResponse: ${JSON.stringify(jsonData, null, 2)}`;
+  } catch {
+    formattedText = `URI: ${res.uri}\nResponse: ${res.response}`;
+  }
+
   return {
     content: [
       {
-        type: 'resource',
-        resource: {
-          uri: res.uri,
-          text: res.response,
-        },
+        type: 'text',
+        text: formattedText,
       },
     ],
   };
