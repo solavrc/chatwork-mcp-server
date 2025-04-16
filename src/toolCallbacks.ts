@@ -55,12 +55,16 @@ function chatworkClientResponseToCallToolResult(
   return {
     content: [
       {
+        type: 'text',
+        text: res.response,
+      },
+      {
         type: 'resource',
         resource: {
           uri: res.uri,
-          text: res.response,
+          text: 'Chatwork',
         },
-      },
+      }
     ],
   };
 }
