@@ -11,9 +11,11 @@ export const createRoomParamsSchema = z.object({
   body: z.object({
     name: z.string(),
     description: z.string().optional(),
-    link: z.union([z.literal(0), z.literal(1)]).optional(),
+    link: z.union([z.literal(0), z.literal(1), z.null()]).optional(),
     link_code: z.string().optional(),
-    link_need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
+    link_need_acceptance: z
+      .union([z.literal(0), z.literal(1), z.null()])
+      .optional(),
     members_admin_ids: z.string(),
     members_member_ids: z.string().optional(),
     members_readonly_ids: z.string().optional(),
@@ -69,7 +71,7 @@ export const listRoomMessagesParamsSchema = z.object({
     room_id: z.number(),
   }),
   query: z.object({
-    force: z.union([z.literal(0), z.literal(1)]).optional(),
+    force: z.union([z.literal(0), z.literal(1), z.null()]).optional(),
   }),
 });
 
@@ -79,7 +81,7 @@ export const postRoomMessageParamsSchema = z.object({
   }),
   body: z.object({
     body: z.string(),
-    self_unread: z.union([z.literal(0), z.literal(1)]).optional(),
+    self_unread: z.union([z.literal(0), z.literal(1), z.null()]).optional(),
   }),
 });
 
@@ -182,7 +184,9 @@ export const getRoomFileParamsSchema = z.object({
     file_id: z.number(),
   }),
   query: z.object({
-    create_download_url: z.union([z.literal(0), z.literal(1)]).optional(),
+    create_download_url: z
+      .union([z.literal(0), z.literal(1), z.null()])
+      .optional(),
   }),
 });
 
@@ -198,7 +202,7 @@ export const createRoomLinkParamsSchema = z.object({
   }),
   body: z.object({
     code: z.string().optional(),
-    need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
+    need_acceptance: z.union([z.literal(0), z.literal(1), z.null()]).optional(),
     description: z.string().optional(),
   }),
 });
@@ -209,7 +213,7 @@ export const updateRoomLinkParamsSchema = z.object({
   }),
   body: z.object({
     code: z.string().optional(),
-    need_acceptance: z.union([z.literal(0), z.literal(1)]).optional(),
+    need_acceptance: z.union([z.literal(0), z.literal(1), z.null()]).optional(),
     description: z.string().optional(),
   }),
 });

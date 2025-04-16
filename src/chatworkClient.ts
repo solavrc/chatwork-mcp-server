@@ -1,8 +1,8 @@
 interface ChatworkClientRequest {
   path: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  query: Record<string, string | number | undefined>;
-  body: Record<string, string | number | undefined>;
+  query: Record<string, string | number | null | undefined>;
+  body: Record<string, string | number | null | undefined>;
 }
 
 export interface ChatworkClientResponse {
