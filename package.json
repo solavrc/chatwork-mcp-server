@@ -10,7 +10,8 @@
     "lint": "eslint && prettier --check .",
     "type-check": "tsc",
     "test": "vitest run",
-    "build": "esbuild src/index.ts --minify --bundle --platform=node --format=esm --outfile=dist/index.js"
+    "build": "esbuild src/index.ts --minify --bundle --platform=node --format=esm --outfile=dist/index.js",
+    "dev": "npm run build -- --watch"
   },
   "repository": {
     "type": "git",
